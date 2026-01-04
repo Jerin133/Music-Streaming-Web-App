@@ -12,6 +12,7 @@ import {
 } from "react-icons/io";
 import { LuRepeat, LuRepeat1 } from "react-icons/lu";
 import { MdOutlineQueueMusic } from "react-icons/md";
+import { supabase } from "../../lib/SupabaseClient";
 
 export default function MusicPlayer() {
   const audioref = useRef<HTMLAudioElement | null>(null);
@@ -22,13 +23,53 @@ export default function MusicPlayer() {
   const [previousVolume, setPreviousVolume] = useState(75);
   const [repeatSong, setRepeatSong] = useState(true);
   const context = useContext(PlayerContext);
+  const hasLoggedPlay = useRef(false);
+
+  const savePodcastPlay = async (episodeId: number) => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return;
+
+    await supabase.from("podcast_episode_plays").insert({
+      podcast_id: currentMusic.podcast_id,
+      episode_id: episodeId,
+    });
+  };
+
+  const saveRecentlyPlayed = async (songId: number) => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return;
+
+    await supabase
+      .from("recently_played")
+      .upsert(
+        {
+          user_id: user.id,
+          song_id: songId,
+          played_at: new Date().toISOString(),
+        },
+        {
+          onConflict: "user_id,song_id",
+        }
+      );
+  };
 
   if (!context) {
     throw new Error("PlayerContext must be used within a PlayerProvider");
   }
 
-  const { currentMusic, playNext, playPrevious, setQueueModal, queueModal } =
-    context;
+  const {
+    currentMusic,
+    playNext,
+    playPrevious,
+    setQueueModal,
+    queueModal,
+  } = context as any;
 
   //   function to pause and play
   const togglePlayButton = () => {
@@ -133,33 +174,46 @@ export default function MusicPlayer() {
     };
   }, [repeatSong, playNext]);
 
+  useEffect(() => {
+    hasLoggedPlay.current = false;
+  }, [currentMusic]);
+
   // useEffect for when a new song is seleted
   useEffect(() => {
     const audio = audioref.current;
-    if (!audio || !currentMusic) return;
+    if (!audio || !currentMusic?.audio_url) return;
 
-    const playAudio = async () => {
-      try {
-        await audio.play(); // Try to play the audio
-        setIsplaying(true); // ✅ Set the UI state to "playing"
-      } catch (err) {
-        console.log("Autoplay Error:", err);
-        setIsplaying(false); // ❌ Playback failed (browser blocked autoplay or error)
-      }
-    };
-
-    playAudio(); // 🔁 Runs once every time currentMusic changes
+    audio.play().then(() => {
+      setIsplaying(true);
+    }).catch(() => {
+      setIsplaying(false);
+    });
   }, [currentMusic]);
 
   if (currentMusic) {
     return (
       <div className="fixed bottom-0 left-0 w-full bg-black text-white px-4 py-3 shadow-md z-50">
-        <audio src={currentMusic?.audio_url || ""} ref={audioref}></audio>
+        {currentMusic?.audio_url && (
+          <audio
+            ref={audioref}
+            src={currentMusic.audio_url}
+            onPlay={() => {
+              if (hasLoggedPlay.current) return;
+              hasLoggedPlay.current = true;
+
+              if ((currentMusic as any).podcast_id) {
+                savePodcastPlay(Number(currentMusic.id));
+              } else {
+                saveRecentlyPlayed(Number(currentMusic.id));
+              }
+            }}
+          />
+        )}
         <div className="max-w-8xl w-[95%] mx-auto flex flex-col md:flex-row gap-4 md:gap-0  items-center justify-between ">
           {/* song info */}
-          <div className="flex gap-4 items-center">
+          <div className="flex gap-4 items-center relative">
             <Image
-              src={currentMusic?.cover_image_url || ""}
+              src={currentMusic?.cover_image_url || "/default-podcast.png"}
               width={500}
               height={500}
               alt="cover-image"

@@ -6,6 +6,7 @@ import Sidebar from "@/components/Sidebar";
 import { Song } from "@/types/song";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { createContext, useEffect, useState } from "react";
+import { SearchProvider } from "@/context/SearchContext";
 
 type PlayerContextType = {
   currentMusic: Song | null;
@@ -55,6 +56,7 @@ export default function FrontendLayout({
   };
 
   return (
+    <SearchProvider>
     <div className="min-h-screen">
       <QueryClientProvider client={queryClient}>
         <PlayerContext.Provider
@@ -75,13 +77,14 @@ export default function FrontendLayout({
         >
           <Navbar />
           {isMusicPlaying && <MusicPlayer />}
-          <main>
-            <Sidebar />
+          <main className={isMusicPlaying ? "pb-[120px]" : ""}>
+            <Sidebar/>
             <Queue />
             {children}
           </main>
         </PlayerContext.Provider>
       </QueryClientProvider>
     </div>
+    </SearchProvider>
   );
 }

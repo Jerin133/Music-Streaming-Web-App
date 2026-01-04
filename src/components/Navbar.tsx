@@ -7,9 +7,11 @@ import { MdHomeFilled } from "react-icons/md";
 import useUserSession from "../../custom-hooks/useUserSession";
 import { useRouter } from "next/navigation";
 import LogoutUser from "../../lib/auth/LogoutUser";
+import { useSearch } from "@/context/SearchContext";
 
 export default function Navbar() {
   const router = useRouter();
+  const { search, setSearch } = useSearch();
 
   const handleLogout = async () => {
     const result = await LogoutUser();
@@ -25,11 +27,11 @@ export default function Navbar() {
     <nav className="h-15  border-b-2 flex justify-between items-center px-6 fixed top-0 left-0 w-full bg-black z-100">
       <div className="flex items-center gap-6">
         <Image
-          width={800}
-          height={800}
-          src="/images/logo.png"
+          width={900}
+          height={900}
+          src="/images/logo2.png"
           alt="logo"
-          className="w-9 h-9"
+          className="w-12 h-10"
         />
         <Link
           href="/"
@@ -41,6 +43,7 @@ export default function Navbar() {
           <GoSearch className="text-text-primary shrink-0" size={25} />
           <input
             type="text"
+            onChange={(e) => setSearch(e.target.value)}
             placeholder="What do you want to play?"
             className="h-full w-full outline-none placeholder:text-text-primary"
           />

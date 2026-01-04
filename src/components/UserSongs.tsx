@@ -5,14 +5,21 @@ import { useQuery } from "@tanstack/react-query";
 import { Song } from "@/types/song";
 import DeleteButton from "./DeleteButton";
 import { PlayerContext } from "@/layouts/FrontendLayout";
+import { addSongToPlaylist, getUserPlaylists } from "../../lib/playlistApi";
+import { LuPlus } from "react-icons/lu";
+import { CiWarning } from "react-icons/ci";
 
 type UserSongsProps = {
   userId: string | undefined;
+  onCreatePlaylist: () => void;
 };
 
-export default function UserSongs({ userId }: UserSongsProps) {
+export default function UserSongs({ userId, onCreatePlaylist }: UserSongsProps) {
 
   const context = useContext(PlayerContext);
+
+  const [activeSongId, setActiveSongId] = React.useState<string | null>(null);
+  const [playlists, setPlaylists] = React.useState<any[]>([]);
   
     if (!context) {
       throw new Error("PlayerContext must be used within a PlayerProvider");
@@ -42,6 +49,14 @@ export default function UserSongs({ userId }: UserSongsProps) {
     queryKey: ["userSongs"],
     queryFn: getUserSongs,
   });
+
+  React.useEffect(() => {
+    if (!userId) return;
+
+    getUserPlaylists(userId)
+      .then(setPlaylists)
+      .catch(() => setPlaylists([]));
+  }, [userId]);
 
   const startPlayingSong = (songs: Song[],index:number) => {
       setQueue(songs)    
@@ -76,15 +91,74 @@ export default function UserSongs({ userId }: UserSongsProps) {
       {songs?.map((song: Song,index) => {
         return (
           <div
-             onClick={() => startPlayingSong(songs,index)}
+            onClick={() => startPlayingSong(songs,index)}
             key={song.id}
             className="group relative flex items-center gap-2 cursor-pointer mb-4 p-2 rounded-lg hover:bg-hover"
           >
             <DeleteButton
+              type="song"
               songId={song.id}
               imagePath={song.cover_image_url}
               audioPath={song.audio_url}
             />
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveSongId(activeSongId === song.id ? null : song.id);
+              }}
+              className="ml-auto text-secondary-text hover:text-primary-text"
+            >
+              <LuPlus size={16} />
+            </button>
+
+            {activeSongId === song.id && (
+              <div
+                className="absolute right-4 top-12 bg-background border border-hover rounded-md shadow-lg p-2 w-48 z-50"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <p className="text-xs text-secondary-text mb-2">
+                  Add to playlist
+                </p>
+
+                {playlists.length === 0 && (
+                  <p className="text-xs text-secondary-text px-2 py-1">
+                    No playlists yet
+                  </p>
+                )}
+
+                {playlists.map((playlist) => (
+                  <button
+                    key={playlist.id}
+                    onClick={async () => {
+                      try {
+                        await addSongToPlaylist(
+                          playlist.id,
+                          Number(song.id),
+                          userId!
+                        );
+                        setActiveSongId(null);
+                      } catch (err) {
+                        console.error("AddSongToPlaylistError", err);
+                      }
+                    }}
+                    className="block w-full text-left text-sm text-primary-text hover:bg-hover rounded px-2 py-1"
+                  >
+                    {playlist.name}
+                  </button>
+                ))}
+
+                <button
+                  onClick={() => {
+                    setActiveSongId(null);
+                    onCreatePlaylist();
+                  }}
+                  className="mt-2 w-full text-left text-sm text-secondary-text hover:text-primary-text"
+                >
+                  + Create playlist
+                </button>
+              </div>
+            )}
+
             <Image
               src={song.cover_image_url}
               alt="cover-image"

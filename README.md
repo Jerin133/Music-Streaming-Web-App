@@ -1,23 +1,82 @@
-# Spotify Clone 🎵  
+# 🎧 BeatMix – Music & Podcast Streaming Web App
 
-<img width="1280" height="720" alt="fullstack-music-streaming-website" src="https://github.com/user-attachments/assets/0f4f8063-cb2a-451a-87a2-fc540891ea8f" />
+A full-stack **Spotify-like music and podcast streaming web application** built with modern web technologies.  
+Users can stream songs and podcasts, manage playlists, like tracks, and view analytics — all with a sleek, responsive UI.
 
-A fullstack Spotify clone built with **React, Next.js 15, Tailwind CSS, and TypeScript**.  
-This project replicates the core functionality and UI of Spotify, including music browsing, queues, and player controls.  
+---
 
-## 🚀 Features  
-- 🎨 Modern UI with Tailwind CSS  
-- ⚡ Built with Next.js 15  
-- 🔐 Supabase Authentication & user sessions  
-- 🎵 Music playback with player controls  
-- 📱 Responsive design for desktop & mobile  
+## 🚀 Features
 
-## 🛠️ Tech Stack  
-- **Frontend:** React, Next.js 15, TypeScript, Tailwind CSS  
-- **Backend:** Supabase  
-- **Auth:** Supabase Auth  
-- **Deployment:** Vercel  
+### 🎶 Music
+- Stream songs with play / pause / next / previous controls
+- Like / unlike songs
+- Add songs to playlists
+- Recently played history
+- Volume control & seek bar
 
-## 🎥 Tutorial  
-Watch the full tutorial on YouTube here:  
-👉 [YouTube Tutorial](https://youtu.be/GOnSwI6GLEE)  
+### 🎙️ Podcasts
+- Browse podcasts & episodes
+- Play podcast episodes using the same player
+- Episode-level analytics
+- Podcast analytics dashboard
+
+### 📊 Analytics (Admin Only)
+- Plays over time (songs & podcasts)
+- Top played songs
+- Most liked songs
+- Top podcasts
+- Top podcast episodes
+
+### 🔐 Authentication
+- Supabase Auth (Email/Password)
+- Role-based access for analytics
+- Secure Row Level Security (RLS)
+
+### 🎨 UI / UX
+- Spotify-style layout & player
+- Responsive design (Desktop & Mobile)
+- Smooth hover interactions
+
+---
+
+## 🧰 Tech Stack
+
+### Frontend
+- **Next.js (App Router)**
+- **React**
+- **TypeScript**
+- **Tailwind CSS**
+- **React Query**
+- **Recharts**
+- **React Icons**
+
+### Backend & Services
+- **Supabase**
+  - PostgreSQL
+  - Authentication
+  - Storage
+  - Row Level Security (RLS)
+
+---
+
+## 🗂️ Database Tables
+
+- `users`
+- `songs`
+- `liked_songs`
+- `playlists`
+- `playlist_songs`
+- `recently_played`
+- `podcasts`
+- `podcast_episodes`
+- `podcast_episode_plays`
+
+### Analytics Views
+- `analytics_plays_per_day`
+- `analytics_top_songs`
+- `analytics_top_liked_songs`
+- `analytics_top_podcasts`
+- `analytics_top_podcast_episodes`
+- `analytics_podcast_plays_per_day`
+
+---
