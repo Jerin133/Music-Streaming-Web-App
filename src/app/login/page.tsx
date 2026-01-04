@@ -42,15 +42,8 @@ export default function Page() {
   return (
     <div className="h-screen flex justify-center items-center w-full bg-hover">
       <div className="bg-background flex items-center flex-col px-6 lg:px-12 py-6 rounded-md max-w-[400px] w-[90%]">
-        <Image
-          width={800}
-          height={800}
-          src="/images/logo.png"
-          alt="logo"
-          className="w-11 h-11"
-        />
         <h2 className="text-3xl font-bold text-white my-2 mb-8 text-center">
-          Log in to Spotify
+          Log in to BeatMix
         </h2>
 
         <form onSubmit={handleLogin}>
